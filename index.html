@@ -177,6 +177,22 @@ function nextMilestone(streak) {
   return STREAK_MILESTONES.find((m) => streak < m) || null;
 }
 
+function getStoredPin(playerId) {
+  try {
+    return localStorage.getItem('pin_' + playerId) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function storePin(playerId, pin) {
+  try {
+    localStorage.setItem('pin_' + playerId, pin);
+  } catch (e) {
+    // 保存できなくても致命的ではないので無視する
+  }
+}
+
 function playerById(id) {
   return DATA.players.find((p) => p.id === id);
 }
@@ -375,9 +391,14 @@ function renderPlayerDashboard(playerId) {
         <h2>次の目標：${nextTarget.id}級</h2>
         <p class="stamp-body">${escapeHtml(nextTarget.title)}</p>
         ${nextTarget.notes ? `<p class="small muted">備考：${escapeHtml(nextTarget.notes)}</p>` : ''}
-        <form id="reportForm" class="row">
-          <input type="date" name="achievedDate" value="${todayStr()}">
-          <button type="submit" class="btn btn-primary">合格した！</button>
+        <form id="reportForm">
+          <label class="field">暗証番号（4桁）
+            <input type="text" inputmode="numeric" name="pin" value="${escapeHtml(getStoredPin(playerId))}" maxlength="8" required placeholder="自分の暗証番号">
+          </label>
+          <div class="row">
+            <input type="date" name="achievedDate" value="${todayStr()}">
+            <button type="submit" class="btn btn-primary">合格した！</button>
+          </div>
         </form>
       </div>
     ` : `
@@ -419,8 +440,9 @@ function bindPlayerDashboardEvents(playerId) {
     const btn = form.querySelector('button');
     btn.disabled = true;
     const achievedDate = form.achievedDate.value || todayStr();
-    const ok = await runAction('reportCertification', { playerId, levelId: nextTarget.id, achievedDate });
-    if (ok) render(); else btn.disabled = false;
+    const pin = form.pin.value.trim();
+    const ok = await runAction('reportCertification', { playerId, levelId: nextTarget.id, achievedDate, pin });
+    if (ok) { storePin(playerId, pin); render(); } else btn.disabled = false;
   });
 }
 
@@ -438,6 +460,9 @@ function renderPlayerNotes(playerId) {
     </div>
 
     <form id="noteForm" class="card">
+      <label class="field">暗証番号（4桁）
+        <input type="text" inputmode="numeric" name="pin" value="${escapeHtml(getStoredPin(playerId))}" maxlength="8" required placeholder="自分の暗証番号">
+      </label>
       <label class="field">日付
         <input type="date" name="date" value="${todayStr()}" required>
       </label>
@@ -477,15 +502,17 @@ function bindPlayerNotesEvents(playerId) {
     e.preventDefault();
     const btn = form.querySelector('button');
     btn.disabled = true;
+    const pin = form.pin.value.trim();
     const ok = await runAction('addNote', {
       playerId,
+      pin,
       date: form.date.value,
       goal: form.goal.value,
       content: form.content.value,
       reflection: form.reflection.value,
       nextGoal: form.nextGoal.value,
     });
-    if (ok) render(); else btn.disabled = false;
+    if (ok) { storePin(playerId, pin); render(); } else btn.disabled = false;
   });
 }
 
@@ -591,18 +618,28 @@ function renderCoachPlayers() {
       <h1 style="margin:0;">選手を管理</h1>
       <a class="link small" href="#/coach/dashboard">ダッシュボードに戻る</a>
     </div>
-    <form id="addPlayerForm" class="card row">
-      <input type="text" name="name" placeholder="新しい選手の名前" required>
-      <button type="submit" class="btn btn-primary">追加</button>
+    <form id="addPlayerForm" class="card">
+      <div class="row">
+        <input type="text" name="name" placeholder="新しい選手の名前" required>
+        <input type="text" inputmode="numeric" name="pin" placeholder="暗証番号(4桁)" maxlength="8" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">追加</button>
     </form>
+    <p class="small muted" style="margin-top:-8px; margin-bottom:16px;">
+      暗証番号は、この選手が自己申告・ノート記入するときに入力する4桁の番号です。忘れた場合はここで再設定できます。
+    </p>
     <ul class="player-list">
       ${players.map((p) => `
-        <li class="list-row">
-          <form class="rename-form row" data-player-id="${p.id}" style="flex:1;">
+        <li class="card" style="margin-bottom:8px;">
+          <form class="rename-form row" data-player-id="${p.id}" style="margin-bottom:8px;">
             <input type="text" name="name" value="${escapeHtml(p.name)}">
             <button type="submit" class="btn btn-outline" style="font-size:12px; padding:8px 12px;">名前を変更</button>
           </form>
-          <button class="btn btn-danger delete-player-btn" data-player-id="${p.id}" style="margin-left:8px;">削除</button>
+          <form class="pin-form row" data-player-id="${p.id}" style="margin-bottom:8px;">
+            <input type="text" inputmode="numeric" name="pin" placeholder="新しい暗証番号(4桁)" maxlength="8">
+            <button type="submit" class="btn btn-outline" style="font-size:12px; padding:8px 12px;">暗証番号を再設定</button>
+          </form>
+          <button class="btn btn-danger delete-player-btn" data-player-id="${p.id}">この選手を削除</button>
         </li>
       `).join('')}
     </ul>
@@ -614,7 +651,7 @@ function bindCoachPlayersEvents() {
   if (addForm) {
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const ok = await runAction('addPlayer', { coachPassword, name: addForm.name.value });
+      const ok = await runAction('addPlayer', { coachPassword, name: addForm.name.value, pin: addForm.pin.value });
       if (ok) render();
     });
   }
@@ -623,6 +660,14 @@ function bindCoachPlayersEvents() {
       e.preventDefault();
       const ok = await runAction('renamePlayer', { coachPassword, playerId: form.dataset.playerId, name: form.name.value });
       if (ok) render();
+    });
+  });
+  document.querySelectorAll('.pin-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.pin.value.trim()) { alert('新しい暗証番号を入力してください。'); return; }
+      const ok = await runAction('setPlayerPin', { coachPassword, playerId: form.dataset.playerId, pin: form.pin.value });
+      if (ok) { alert('暗証番号を変更しました。'); render(); }
     });
   });
   document.querySelectorAll('.delete-player-btn').forEach((btn) => {
