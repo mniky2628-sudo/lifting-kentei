@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リフティング検定</title>
+<style>
+  :root {
+    --paper: #F6F8F6;
+    --ink: #1F2A24;
+    --ink-soft: #5B6B60;
+    --line: #DCE5DE;
+    --green: #1E7A4C;
+    --green-dark: #145C39;
+    --green-bg: #E6F3EA;
+    --amber: #B8790A;
+    --amber-bg: #FCEEDA;
+    --red: #B23A2E;
+    --red-bg: #F9E4E1;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  header {
+    background: var(--green);
+    color: #fff;
+    padding: 14px 16px;
+    font-weight: 700;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header a { color: #fff; text-decoration: none; }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 17px; margin: 0 0 8px; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: 13px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .btn {
+    display: inline-block;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-outline { background: #fff; color: var(--green); border: 2px solid var(--green); }
+  .btn-outline:hover { background: var(--green-bg); }
+  .btn-danger { background: #fff; color: var(--red); border: 1px solid #E3B2AC; font-size: 12px; padding: 8px 12px; }
+  .btn-danger:hover { background: var(--red-bg); }
+  .btn-block { display: block; width: 100%; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  input[type=text], input[type=password], input[type=date], textarea {
+    width: 100%;
+    border: 1px solid #C7D2CB;
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+  }
+  label.field { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 13px; margin-bottom: 10px; }
+  label.field > * :first-child {}
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row > * { flex: 1; }
+  .link { color: var(--green); text-decoration: underline; cursor: pointer; background: none; border: none; font: inherit; padding: 0; }
+  .stamp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .stamp-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .stamp-item.achieved { border-color: #9BCBAE; background: #FBFFFC; }
+  .stamp-item.locked { background: #EFF2EF; color: var(--ink-soft); }
+  .stamp-icon { font-size: 20px; width: 24px; text-align: center; flex-shrink: 0; }
+  .stamp-title { font-weight: 700; font-size: 13px; }
+  .stamp-body { white-space: pre-line; font-size: 12px; }
+  .stamp-date { font-size: 11px; color: var(--ink-soft); flex-shrink: 0; }
+  .target-card { border: 2px solid var(--green); background: var(--green-bg); }
+  .badge { display: inline-block; background: var(--amber-bg); color: var(--amber); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; margin: 2px 4px 0 0; }
+  .comment { background: var(--amber-bg); border: 1px solid #EBD6AF; border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-top: 6px; }
+  .banner { border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
+  .banner.error { background: var(--red-bg); color: var(--red); }
+  .banner.loading { background: var(--amber-bg); color: var(--amber); }
+  .player-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .player-list a, .player-list .list-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    text-decoration: none; color: var(--ink); font-weight: 600;
+  }
+  .player-list a:hover { border-color: var(--green); }
+  .top-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .empty { color: var(--ink-soft); font-size: 14px; padding: 20px 0; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <a href="#/">⚽ リフティング検定</a>
+</header>
+<main id="app">読み込み中...</main>
+
+<script>
+/* ==============================
+   設定：GASでWebアプリを公開したら、そのURLをここに貼り付けてください
+   ============================== */
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbySholvmQR82tCfmGa8WxWxnd2LJApg-ej5bWyj6F5011D4r3WAiS0F6p9DPQIFCfIF/exec';
+
+const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
+
+let DATA = { players: [], levels: [], certifications: [], notes: [], comments: [] };
+let loaded = false;
+let loadError = '';
+let coachPassword = localStorage.getItem('coachPassword') || '';
+
+// ---------- ユーティリティ ----------
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function computeCurrentStreak(dateStrings) {
+  const uniqueDesc = Array.from(new Set(dateStrings)).sort().reverse();
+  if (uniqueDesc.length === 0) return 0;
+  const today = todayStr();
+  const yesterday = addDays(today, -1);
+  if (uniqueDesc[0] !== today && uniqueDesc[0] !== yesterday) return 0;
+  let streak = 1;
+  for (let i = 0; i < uniqueDesc.length - 1; i++) {
+    const cur = new Date(uniqueDesc[i] + 'T00:00:00');
+    const next = new Date(uniqueDesc[i + 1] + 'T00:00:00');
+    const diffDays = Math.round((cur - next) / 86400000);
+    if (diffDays === 1) streak++; else break;
+  }
+  return streak;
+}
+
+function achievedMilestones(streak) {
+  return STREAK_MILESTONES.filter((m) => streak >= m);
+}
+
+function nextMilestone(streak) {
+  return STREAK_MILESTONES.find((m) => streak < m) || null;
+}
+
+function playerById(id) {
+  return DATA.players.find((p) => p.id === id);
+}
+
+function levelsSorted() {
+  return [...DATA.levels].sort((a, b) => b.id - a.id);
+}
+
+function certsByPlayer(playerId) {
+  return DATA.certifications.filter((c) => c.playerId === playerId);
+}
+
+function notesByPlayer(playerId) {
+  return DATA.notes
+    .filter((n) => n.playerId === playerId)
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
+
+function commentsByNote(noteId) {
+  return DATA.comments.filter((c) => c.noteId === noteId);
+}
+
+function findNextTargetLevel(achievedLevelIds) {
+  const ordered = levelsSorted();
+  return ordered.find((l) => !achievedLevelIds.has(l.id)) || null;
+}
+
+// ---------- サーバー通信 ----------
+
+async function callApi(action, payload) {
+  const body = Object.assign({ action }, payload || {});
+  const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || '不明なエラーが発生しました');
+  return data;
+}
+
+async function loadData() {
+  loaded = false;
+  loadError = '';
+  render();
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'データの取得に失敗しました');
+    DATA = data;
+    loaded = true;
+  } catch (e) {
+    loadError = String(e.message || e);
+  }
+  render();
+}
+
+async function runAction(action, payload) {
+  try {
+    const data = await callApi(action, payload);
+    DATA = data;
+    return true;
+  } catch (e) {
+    alert('エラー：' + e.message);
+    return false;
+  }
+}
+
+// ---------- ルーター ----------
+
+function currentRoute() {
+  const hash = location.hash.replace(/^#/, '') || '/';
+  const parts = hash.split('/').filter(Boolean);
+  return parts;
+}
+
+window.addEventListener('hashchange', render);
+
+function render() {
+  const app = document.getElementById('app');
+  if (WEB_APP_URL.indexOf('PUT_YOUR_WEB_APP_URL_HERE') !== -1) {
+    app.innerHTML = renderSetupNeeded();
+    return;
+  }
+  if (!loaded) {
+    app.innerHTML = loadError
+      ? `<div class="banner error">データの取得に失敗しました：${escapeHtml(loadError)}</div><button class="btn btn-primary" onclick="loadData()">再読み込み</button>`
+      : `<div class="banner loading">読み込み中...</div>`;
+    return;
+  }
+
+  const parts = currentRoute();
+
+  if (parts[0] === 'players') {
+    app.innerHTML = renderPlayerList();
+  } else if (parts[0] === 'p' && parts[1] && parts[2] === 'notes') {
+    app.innerHTML = renderPlayerNotes(parts[1]);
+    bindPlayerNotesEvents(parts[1]);
+  } else if (parts[0] === 'p' && parts[1]) {
+    app.innerHTML = renderPlayerDashboard(parts[1]);
+    bindPlayerDashboardEvents(parts[1]);
+  } else if (parts[0] === 'coach' && parts[1] === 'dashboard') {
+    app.innerHTML = renderCoachDashboard();
+  } else if (parts[0] === 'coach' && parts[1] === 'players' && parts[2]) {
+    app.innerHTML = renderCoachPlayerDetail(parts[2]);
+    bindCoachPlayerDetailEvents(parts[2]);
+  } else if (parts[0] === 'coach' && parts[1] === 'players') {
+    app.innerHTML = renderCoachPlayers();
+    bindCoachPlayersEvents();
+  } else if (parts[0] === 'coach' && parts[1] === 'levels') {
+    app.innerHTML = renderCoachLevels();
+    bindCoachLevelsEvents();
+  } else if (parts[0] === 'coach') {
+    app.innerHTML = renderCoachLogin();
+    bindCoachLoginEvents();
+  } else {
+    app.innerHTML = renderHome();
+  }
+}
+
+function renderSetupNeeded() {
+  return `
+    <div class="card">
+      <h1>セットアップが必要です</h1>
+      <p class="small muted">
+        index.html 内の <code>WEB_APP_URL</code> に、Google Apps Scriptで公開したWebアプリのURLを貼り付けてください。
+      </p>
+    </div>
+  `;
+}
+
+function requireCoachOr(view) {
+  if (!coachPassword) {
+    location.hash = '#/coach';
+    return false;
+  }
+  return true;
+}
+
+// ---------- ホーム ----------
+
+function renderHome() {
+  return `
+    <div style="text-align:center; padding: 30px 0;">
+      <h1>銚子SSS リフティング検定</h1>
+      <p class="muted">検定の進み具合とサッカーノートを記録しよう。<br>合格するとスタンプがもらえるよ！</p>
+      <div style="max-width:280px; margin: 24px auto 0; display:flex; flex-direction:column; gap:12px;">
+        <a class="btn btn-primary btn-block" href="#/players">選手として使う</a>
+        <a class="btn btn-outline btn-block" href="#/coach">コーチとしてログイン</a>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- 選手一覧 ----------
+
+function renderPlayerList() {
+  const players = [...DATA.players].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  return `
+    <h1>選手を選んでね</h1>
+    ${players.length === 0
+      ? `<p class="empty">まだ選手が登録されていません。コーチに登録をお願いしてください。</p>`
+      : `<ul class="player-list">${players.map((p) => `<li><a href="#/p/${p.id}">${escapeHtml(p.name)}</a></li>`).join('')}</ul>`}
+    <p class="small muted" style="margin-top:16px;">自分の名前が無い場合はコーチに登録をお願いしてください。</p>
+  `;
+}
+
+// ---------- 選手ダッシュボード ----------
+
+function renderPlayerDashboard(playerId) {
+  const player = playerById(playerId);
+  if (!player) return `<p class="empty">選手が見つかりません。</p><a class="link" href="#/players">選手一覧に戻る</a>`;
+
+  const certs = certsByPlayer(playerId);
+  const achievedIds = new Set(certs.map((c) => c.levelId));
+  const nextTarget = findNextTargetLevel(achievedIds);
+  const notes = notesByPlayer(playerId);
+  const streak = computeCurrentStreak(notes.map((n) => n.date));
+  const milestones = achievedMilestones(streak);
+  const nextMs = nextMilestone(streak);
+
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">${escapeHtml(player.name)} さんの記録</h1>
+      <a class="link small" href="#/players">選手を変更</a>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <span class="muted small">連続記録日数</span>
+        <span style="font-size:22px; font-weight:700; color:var(--green-dark);">${streak}日</span>
+      </div>
+      ${milestones.map((m) => `<span class="badge">🏅 ${m}日達成</span>`).join('')}
+      ${nextMs ? `<p class="small muted" style="margin-top:8px;">次のボーナスまであと${nextMs - streak}日</p>` : ''}
+      <a class="btn btn-primary btn-block" style="margin-top:10px;" href="#/p/${playerId}/notes">サッカーノートを書く</a>
+    </div>
+
+    ${nextTarget ? `
+      <div class="card target-card">
+        <h2>次の目標：${nextTarget.id}級</h2>
+        <p class="stamp-body">${escapeHtml(nextTarget.title)}</p>
+        ${nextTarget.notes ? `<p class="small muted">備考：${escapeHtml(nextTarget.notes)}</p>` : ''}
+        <form id="reportForm" class="row">
+          <input type="date" name="achievedDate" value="${todayStr()}">
+          <button type="submit" class="btn btn-primary">合格した！</button>
+        </form>
+      </div>
+    ` : `
+      <div class="card" style="text-align:center; background: var(--amber-bg); border-color:#EBD6AF; font-weight:700; color:var(--amber);">
+        🎉 今ある級はすべて合格しました！
+      </div>
+    `}
+
+    <h2>スタンプラリー</h2>
+    <ul class="stamp-list">
+      ${levelsSorted().map((level) => {
+        const cert = certs.find((c) => c.levelId === level.id);
+        const achieved = !!cert;
+        const cls = achieved ? 'achieved' : level.isDefined ? '' : 'locked';
+        const icon = achieved ? '✅' : level.isDefined ? '⚪' : '🔒';
+        return `
+          <li class="stamp-item ${cls}">
+            <span class="stamp-icon">${icon}</span>
+            <div style="flex:1;">
+              <div class="stamp-title">${level.id}級</div>
+              <div class="stamp-body">${escapeHtml(level.title)}</div>
+            </div>
+            ${cert ? `<span class="stamp-date">${escapeHtml(cert.achievedDate)}</span>` : ''}
+          </li>
+        `;
+      }).join('')}
+    </ul>
+  `;
+}
+
+function bindPlayerDashboardEvents(playerId) {
+  const form = document.getElementById('reportForm');
+  if (!form) return;
+  const player = playerById(playerId);
+  const achievedIds = new Set(certsByPlayer(playerId).map((c) => c.levelId));
+  const nextTarget = findNextTargetLevel(achievedIds);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    const achievedDate = form.achievedDate.value || todayStr();
+    const ok = await runAction('reportCertification', { playerId, levelId: nextTarget.id, achievedDate });
+    if (ok) render(); else btn.disabled = false;
+  });
+}
+
+// ---------- サッカーノート ----------
+
+function renderPlayerNotes(playerId) {
+  const player = playerById(playerId);
+  if (!player) return `<p class="empty">選手が見つかりません。</p><a class="link" href="#/players">選手一覧に戻る</a>`;
+  const notes = notesByPlayer(playerId);
+
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">${escapeHtml(player.name)} さんのサッカーノート</h1>
+      <a class="link small" href="#/p/${playerId}">検定に戻る</a>
+    </div>
+
+    <form id="noteForm" class="card">
+      <label class="field">日付
+        <input type="date" name="date" value="${todayStr()}" required>
+      </label>
+      <label class="field">今日の目標
+        <textarea name="goal" rows="2"></textarea>
+      </label>
+      <label class="field">練習内容
+        <textarea name="content" rows="3"></textarea>
+      </label>
+      <label class="field">振り返り
+        <textarea name="reflection" rows="2"></textarea>
+      </label>
+      <label class="field">次回に向けて
+        <textarea name="nextGoal" rows="2"></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">記録する</button>
+    </form>
+
+    <h2>これまでの記録</h2>
+    ${notes.length === 0 ? `<p class="empty">まだ記録がありません。</p>` : notes.map((note) => `
+      <div class="card">
+        <p style="font-weight:700; color:var(--green-dark); margin:0 0 6px;">${escapeHtml(note.date)}</p>
+        ${note.goal ? `<p class="small"><b>今日の目標：</b>${escapeHtml(note.goal)}</p>` : ''}
+        ${note.content ? `<p class="small" style="white-space:pre-line;"><b>練習内容：</b>${escapeHtml(note.content)}</p>` : ''}
+        ${note.reflection ? `<p class="small" style="white-space:pre-line;"><b>振り返り：</b>${escapeHtml(note.reflection)}</p>` : ''}
+        ${note.nextGoal ? `<p class="small" style="white-space:pre-line;"><b>次回に向けて：</b>${escapeHtml(note.nextGoal)}</p>` : ''}
+        ${commentsByNote(note.id).map((c) => `<div class="comment"><b>コーチより：</b>${escapeHtml(c.comment)}</div>`).join('')}
+      </div>
+    `).join('')}
+  `;
+}
+
+function bindPlayerNotesEvents(playerId) {
+  const form = document.getElementById('noteForm');
+  if (!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    const ok = await runAction('addNote', {
+      playerId,
+      date: form.date.value,
+      goal: form.goal.value,
+      content: form.content.value,
+      reflection: form.reflection.value,
+      nextGoal: form.nextGoal.value,
+    });
+    if (ok) render(); else btn.disabled = false;
+  });
+}
+
+// ---------- コーチ ログイン ----------
+
+function renderCoachLogin() {
+  return `
+    <div style="max-width:320px; margin: 30px auto 0;">
+      <h1 style="text-align:center;">コーチログイン</h1>
+      <form id="loginForm" class="card">
+        <label class="field">パスワード
+          <input type="password" name="password" required autofocus>
+        </label>
+        <div id="loginError" class="banner error" style="display:none;"></div>
+        <button type="submit" class="btn btn-primary btn-block">ログイン</button>
+      </form>
+    </div>
+  `;
+}
+
+function bindCoachLoginEvents() {
+  const form = document.getElementById('loginForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    const password = form.password.value;
+    try {
+      const data = await callApi('checkCoachPassword', { password });
+      if (data.valid) {
+        coachPassword = password;
+        localStorage.setItem('coachPassword', password);
+        location.hash = '#/coach/dashboard';
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('loginError').textContent = 'パスワードが違います。';
+      }
+    } catch (e) {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginError').textContent = String(e.message || e);
+    }
+    btn.disabled = false;
+  });
+}
+
+function coachLogout() {
+  coachPassword = '';
+  localStorage.removeItem('coachPassword');
+  location.hash = '#/coach';
+}
+
+// ---------- コーチ ダッシュボード ----------
+
+function renderCoachDashboard() {
+  if (!requireCoachOr()) return '';
+  const summaries = DATA.players.map((player) => {
+    const certs = certsByPlayer(player.id);
+    const achievedIds = new Set(certs.map((c) => c.levelId));
+    const nextTarget = findNextTargetLevel(achievedIds);
+    const notes = notesByPlayer(player.id);
+    const streak = computeCurrentStreak(notes.map((n) => n.date));
+    return {
+      player,
+      achievedCount: certs.length,
+      nextTargetLabel: nextTarget ? `${nextTarget.id}級` : '全級合格',
+      lastNoteDate: notes[0] ? notes[0].date : '記録なし',
+      streak,
+    };
+  });
+
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">コーチ管理画面</h1>
+      <button class="link small" onclick="coachLogout()">ログアウト</button>
+    </div>
+    <div class="top-actions">
+      <a class="btn btn-primary" href="#/coach/players">選手を管理</a>
+      <a class="btn btn-outline" href="#/coach/levels">級の内容を管理</a>
+    </div>
+    ${summaries.length === 0 ? `<p class="empty">選手がまだ登録されていません。</p>` : `
+      <ul class="player-list">
+        ${summaries.map((s) => `
+          <li><a href="#/coach/players/${s.player.id}">
+            <span>
+              <div>${escapeHtml(s.player.name)}</div>
+              <div class="small muted" style="font-weight:400;">合格済み ${s.achievedCount}件 ・ 次の目標 ${s.nextTargetLabel} ・ 最終記録日 ${escapeHtml(s.lastNoteDate)}</div>
+            </span>
+            <span style="color:var(--green-dark);">🔥${s.streak}日</span>
+          </a></li>
+        `).join('')}
+      </ul>
+    `}
+  `;
+}
+
+// ---------- コーチ 選手管理 ----------
+
+function renderCoachPlayers() {
+  if (!requireCoachOr()) return '';
+  const players = [...DATA.players].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">選手を管理</h1>
+      <a class="link small" href="#/coach/dashboard">ダッシュボードに戻る</a>
+    </div>
+    <form id="addPlayerForm" class="card row">
+      <input type="text" name="name" placeholder="新しい選手の名前" required>
+      <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+    <ul class="player-list">
+      ${players.map((p) => `
+        <li class="list-row">
+          <form class="rename-form row" data-player-id="${p.id}" style="flex:1;">
+            <input type="text" name="name" value="${escapeHtml(p.name)}">
+            <button type="submit" class="btn btn-outline" style="font-size:12px; padding:8px 12px;">名前を変更</button>
+          </form>
+          <button class="btn btn-danger delete-player-btn" data-player-id="${p.id}" style="margin-left:8px;">削除</button>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+}
+
+function bindCoachPlayersEvents() {
+  const addForm = document.getElementById('addPlayerForm');
+  if (addForm) {
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ok = await runAction('addPlayer', { coachPassword, name: addForm.name.value });
+      if (ok) render();
+    });
+  }
+  document.querySelectorAll('.rename-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ok = await runAction('renamePlayer', { coachPassword, playerId: form.dataset.playerId, name: form.name.value });
+      if (ok) render();
+    });
+  });
+  document.querySelectorAll('.delete-player-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('本当に削除しますか？記録もすべて消えます。')) return;
+      const ok = await runAction('deletePlayer', { coachPassword, playerId: btn.dataset.playerId });
+      if (ok) render();
+    });
+  });
+}
+
+// ---------- コーチ 選手詳細 ----------
+
+function renderCoachPlayerDetail(playerId) {
+  if (!requireCoachOr()) return '';
+  const player = playerById(playerId);
+  if (!player) return `<p class="empty">選手が見つかりません。</p>`;
+  const certs = certsByPlayer(playerId).sort((a, b) => b.levelId - a.levelId);
+  const notes = notesByPlayer(playerId);
+  const levelById = new Map(DATA.levels.map((l) => [l.id, l]));
+
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">${escapeHtml(player.name)} さんの記録</h1>
+      <a class="link small" href="#/coach/dashboard">ダッシュボードに戻る</a>
+    </div>
+
+    <h2>検定合格記録</h2>
+    ${certs.length === 0 ? `<p class="empty">まだ合格記録がありません。</p>` : `
+      <ul class="player-list" style="margin-bottom:20px;">
+        ${certs.map((c) => `
+          <li class="list-row">
+            <span style="font-weight:400;">${c.levelId}級（${escapeHtml((levelById.get(c.levelId) || {}).title || '').split('\n')[0]}）
+              <span class="muted small"> ${escapeHtml(c.achievedDate)}</span>
+            </span>
+            <button class="btn btn-danger delete-cert-btn" data-level-id="${c.levelId}">取り消す</button>
+          </li>
+        `).join('')}
+      </ul>
+    `}
+
+    <h2>サッカーノート</h2>
+    ${notes.length === 0 ? `<p class="empty">まだ記録がありません。</p>` : notes.map((note) => `
+      <div class="card">
+        <p style="font-weight:700; color:var(--green-dark); margin:0 0 6px;">${escapeHtml(note.date)}</p>
+        ${note.goal ? `<p class="small"><b>今日の目標：</b>${escapeHtml(note.goal)}</p>` : ''}
+        ${note.content ? `<p class="small" style="white-space:pre-line;"><b>練習内容：</b>${escapeHtml(note.content)}</p>` : ''}
+        ${note.reflection ? `<p class="small" style="white-space:pre-line;"><b>振り返り：</b>${escapeHtml(note.reflection)}</p>` : ''}
+        ${note.nextGoal ? `<p class="small" style="white-space:pre-line;"><b>次回に向けて：</b>${escapeHtml(note.nextGoal)}</p>` : ''}
+        ${commentsByNote(note.id).map((c) => `<div class="comment"><b>コーチより：</b>${escapeHtml(c.comment)}</div>`).join('')}
+        <form class="comment-form row" data-note-id="${note.id}" style="margin-top:8px;">
+          <input type="text" name="comment" placeholder="コメントを書く" required>
+          <button type="submit" class="btn btn-primary" style="font-size:13px;">送信</button>
+        </form>
+      </div>
+    `).join('')}
+  `;
+}
+
+function bindCoachPlayerDetailEvents(playerId) {
+  document.querySelectorAll('.delete-cert-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const ok = await runAction('deleteCertification', { coachPassword, playerId, levelId: Number(btn.dataset.levelId) });
+      if (ok) render();
+    });
+  });
+  document.querySelectorAll('.comment-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ok = await runAction('addComment', { coachPassword, noteId: form.dataset.noteId, comment: form.comment.value });
+      if (ok) render();
+    });
+  });
+}
+
+// ---------- コーチ 級管理 ----------
+
+function renderCoachLevels() {
+  if (!requireCoachOr()) return '';
+  return `
+    <div class="row" style="justify-content:space-between; margin-bottom:14px;">
+      <h1 style="margin:0;">級の内容を管理</h1>
+      <a class="link small" href="#/coach/dashboard">ダッシュボードに戻る</a>
+    </div>
+    <p class="small muted">3級・2級・1級は内容が決まり次第、ここで登録して「有効」にチェックを入れてください。</p>
+    ${levelsSorted().map((level) => `
+      <form class="card level-form" data-level-id="${level.id}">
+        <p style="font-weight:700; margin:0 0 8px;">${level.id}級</p>
+        <label class="field">内容
+          <textarea name="title" rows="3">${escapeHtml(level.title)}</textarea>
+        </label>
+        <label class="field">備考
+          <textarea name="notes" rows="2">${escapeHtml(level.notes)}</textarea>
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; margin-bottom:10px;">
+          <input type="checkbox" name="isDefined" ${level.isDefined ? 'checked' : ''}>
+          有効（選手画面に表示する）
+        </label>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </form>
+    `).join('')}
+  `;
+}
+
+function bindCoachLevelsEvents() {
+  document.querySelectorAll('.level-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ok = await runAction('updateLevel', {
+        coachPassword,
+        levelId: Number(form.dataset.levelId),
+        title: form.title.value,
+        notes: form.notes.value,
+        isDefined: form.isDefined.checked,
+      });
+      if (ok) render();
+    });
+  });
+}
+
+// ---------- 起動 ----------
+
+loadData();
+</script>
+</body>
+</html>
